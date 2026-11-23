@@ -946,8 +946,7 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
 
   <p class="notice">
     Flores e flores especiais não têm preço exibido.
-    O total considera somente adicionais e pelúcias com preço cadastrado;
-    o valor final do buquê será confirmado pelo atendimento.
+    Flores e flores especiais são calculadas pela tabela de quantidade (1 flor R$ 55; cada adicional +R$ 25, até 20 flores). Pelúcias e adicionais somam seus preços cadastrados. Acima de 20 flores, consulte o valor pelo WhatsApp.
   </p>
 
   <button class="btn" style="width:100%" onclick="checkout()">
@@ -1090,6 +1089,13 @@ function money(v) {
   });
 }
 
+function getCartPricing(){
+  const entries=Object.keys(cart).map(id=>({p:products.find(x=>String(x.id)===String(id)),q:Number(cart[id])||0})).filter(x=>x.p&&x.p.available!==false);
+  const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
+  const flowerTotal=flowerCount>0&&flowerCount<=20?55+(flowerCount-1)*25:0;
+  const extrasTotal=entries.filter(x=>x.p.category!=='Flores'&&x.p.category!=='Flores especiais').reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0);
+  return {flowerCount,flowerTotal,extrasTotal,subtotal:flowerTotal+extrasTotal,overLimit:flowerCount>20};
+}
 function persist() {
   localStorage.setItem('gf_cart',JSON.stringify(cart));
   document.getElementById('count').textContent =
@@ -1275,19 +1281,17 @@ function renderCart() {
     `).join('')
     : '<p class="notice">Seu carrinho está vazio.</p>';
 
-  const total=items.reduce((s,x)=>
-    s+((x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined)?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0
-  );
-
+  const pricing=getCartPricing(),total=pricing.subtotal;
   const discount=appliedCoupon?Math.min(total,Number((appliedCoupon.discount_type==='percentage'?total*appliedCoupon.discount_value/100:appliedCoupon.discount_value).toFixed(2))):0;
-  document.getElementById('total').innerHTML = 'Total dos itens com preço: '+money(total)+(discount?' <div style="color:#287344;margin-top:6px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+'</div><div style="margin-top:4px">Total parcial com desconto: '+money(total-discount)+'</div>':'');
+  const flowerLine=pricing.flowerCount?(pricing.overLimit?'Flores ('+pricing.flowerCount+' unidades): valor sob consulta':'Flores ('+pricing.flowerCount+' unidades): '+money(pricing.flowerTotal)):'';
+  document.getElementById('total').innerHTML=(flowerLine?'<div>'+flowerLine+'</div>':'')+'<div>Adicionais e pelúcias: '+money(pricing.extrasTotal)+'</div><div style="margin-top:6px;font-weight:800">Total parcial: '+money(total)+'</div>'+(pricing.overLimit?'<div class="notice">Pedidos com mais de 20 flores precisam de confirmação de valor pelo WhatsApp.</div>':'')+(discount?' <div style="color:#287344;margin-top:6px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+'</div><div style="margin-top:4px">Total parcial com desconto: '+money(total-discount)+'</div>':'');
 }
 
 
 async function applyStoreCoupon(){
  const input=document.getElementById('couponInput'),status=document.getElementById('couponStatus'),code=(input.value||'').trim().toUpperCase();
  if(!code){status.textContent='Digite o código do cupom.';return;}
- const ids=Object.keys(cart);const subtotal=ids.reduce((sum,id)=>{const p=products.find(x=>String(x.id)===String(id));return sum+(p&&p.price!==null&&p.price!==''&&p.price!==undefined?(p.promo_active&&p.promo_price!=null?Number(p.promo_price):Number(p.price))*cart[id]:0);},0);
+ const subtotal=getCartPricing().subtotal;
  status.textContent='Verificando cupom...';
  try{
   const {data,error}=await db.from('coupons').select('code,discount_type,discount_value,minimum_order_amount,starts_at,ends_at,usage_limit,usage_count,active,customer_phone').eq('code',code).eq('active',true).maybeSingle();
@@ -1375,17 +1379,16 @@ function checkout() {
   const hasColorEligibleItems=ids.some(id=>{const p=products.find(x=>x.id==id);return p&&(p.category==='Flores'||p.category==='Flores especiais'||(p.category==='Buquês'&&p.allow_bouquet_color_choice===true));});
   if(hasColorEligibleItems&&(((cartColorPreference.tones||[]).length)||((cartColorPreference.custom||'').trim()))){lines.push('','🎨 *COR DE PREFERÊNCIA:*');if((cartColorPreference.tones||[]).length)lines.push('Tons: '+cartColorPreference.tones.join(', '));if((cartColorPreference.custom||'').trim())lines.push('Preferência: '+cartColorPreference.custom.trim());}
 
-  const total=ids.reduce((s,id)=>{
-    const p=products.find(x=>x.id==id);
-    return s+(p&&p.price!==null&&p.price!==''&&p.price!==undefined?(p.promo_active&&p.promo_price!=null?Number(p.promo_price):Number(p.price))*cart[id]:0);
-  },0);
+  const pricing=getCartPricing(),total=pricing.subtotal;
 
   const couponDiscount=appliedCoupon?Math.min(total,Number((appliedCoupon.discount_type==='percentage'?total*appliedCoupon.discount_value/100:appliedCoupon.discount_value).toFixed(2))):0;
   if(appliedCoupon){lines.push('','🎟️ *Cupom:* '+appliedCoupon.code,'💚 *Desconto:* −'+money(couponDiscount));}
   lines.push(
     '',
-    '💰 *Total parcial dos itens com preço:* '+money(total-couponDiscount)+' (antes do desconto: '+money(total)+')',
-    '_Flores e flores especiais têm valor confirmado no atendimento._',
+    '🌷 *Flores e flores especiais:* '+(pricing.flowerCount?(pricing.overLimit?pricing.flowerCount+' unidades — valor sob consulta':pricing.flowerCount+' unidades — '+money(pricing.flowerTotal)):'Nenhuma'),
+    '🎀 *Adicionais e pelúcias:* '+money(pricing.extrasTotal),
+    '💰 *Total parcial:* '+money(total-couponDiscount)+' (antes do desconto: '+money(total)+')',
+    ...(pricing.overLimit?['_Para pedidos acima de 20 flores, o valor das flores será confirmado pelo atendimento.']:[]),
     '',
     '📝 *Detalhes e personalização:* '+(document.getElementById('notes').value||'Nenhuma'),
     '',
@@ -1428,10 +1431,11 @@ async function confirmCheckout(){
     if(stockIssues.length){alert("Estoque insuficiente para: "+stockIssues.join(", ")+". Atualize as quantidades no carrinho.");return;}
     const orderItems=ids.map(id=>{
       const p=products.find(x=>String(x.id)===String(id));if(!p||p.available===false)return null;
-      const unitPrice=p.promo_active&&p.promo_price!=null?Number(p.promo_price):(p.price!==null&&p.price!==''&&p.price!==undefined?Number(p.price):null);
+      const isFlower=p.category==='Flores'||p.category==='Flores especiais';
+      const unitPrice=isFlower?null:(p.promo_active&&p.promo_price!=null?Number(p.promo_price):(p.price!==null&&p.price!==''&&p.price!==undefined?Number(p.price):null));
       return {product_id:p.id,name:p.name,category:p.category,quantity:cart[id],unit_price:unitPrice};
     }).filter(Boolean);
-    const total=orderItems.reduce((sum,item)=>sum+(item.unit_price===null?0:item.unit_price*item.quantity),0);
+    const total=getCartPricing().subtotal;
     const deliveryMethod=document.getElementById('deliveryMethod').value;
     const payload={
       customer_name:document.getElementById('customer').value.trim()||'Não informado',
