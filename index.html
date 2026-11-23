@@ -1092,7 +1092,7 @@ function money(v) {
 function getCartPricing(){
   const entries=Object.keys(cart).map(id=>({p:products.find(x=>String(x.id)===String(id)),q:Number(cart[id])||0})).filter(x=>x.p&&x.p.available!==false);
   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
-  const flowerTotal=flowerCount>0&&flowerCount<=20?55+(flowerCount-1)*25:0;
+  const flowerTotal=flowerCount>0?55+(flowerCount-1)*25:0;
   const extrasTotal=entries.filter(x=>x.p.category!=='Flores'&&x.p.category!=='Flores especiais').reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0);
   return {flowerCount,flowerTotal,extrasTotal,subtotal:flowerTotal+extrasTotal,overLimit:flowerCount>20};
 }
@@ -1215,7 +1215,7 @@ function openProductDetails(id){
   const hasPrice=p.price!==null&&p.price!==''&&p.price!==undefined;
   const priceHtml=p.promo_active&&p.promo_price!=null?'<span class="old-price">'+money(p.price)+'</span> <span class="sale-tag">PROMOÇÃO</span><br>'+money(p.promo_price):(hasPrice?money(p.price):'Valor a confirmar');
   const imageHtml=p.image?'<img class="product-dialog-image" src="'+escapeProductText(p.image)+'" alt="'+escapeProductText(p.name)+'">':'<div class="noimage product-dialog-image">Foto a adicionar</div>';
-  const note=(p.category==='Flores'||p.category==='Flores especiais')?'O valor desta peça é confirmado pelo atendimento.':'Consulte a disponibilidade pelo atendimento.';
+  const note=(p.category==='Flores'||p.category==='Flores especiais')?'Valor calculado automaticamente: 1 flor R$ 55 e cada adicional + R$ 25.':'Consulte a disponibilidade pelo atendimento.';
   const outOfStock=p.stock_quantity!==null&&p.stock_quantity!==undefined&&Number(p.stock_quantity)<=0;const availabilityHtml=p.available===false||outOfStock?'<div class="unavailable-label">Indisponível no momento<button class="waitlist-cta" type="button" data-waitlist-id="'+p.id+'" data-product-name="'+escapeProductText(p.name)+'">Avise-me quando voltar</button></div>':'<button class="product-dialog-add" type="button" onclick="add('+p.id+',null);closeProductDetails()">Adicionar ao carrinho</button>';
   const descriptionHtml=p.description?'<div class="product-dialog-description">'+escapeProductText(p.description).replace(/\n/g,'<br>')+'</div>':'';
   document.getElementById('productDialogContent').innerHTML=imageHtml+'<h2 class="product-dialog-name" id="productDialogName">'+escapeProductText(p.name)+'</h2><div class="product-dialog-category">'+escapeProductText(p.category)+'</div><div class="product-dialog-price">'+priceHtml+'</div>'+descriptionHtml+'<p class="product-dialog-note">'+note+' Encomendas com '+escapeProductText(settings.lead)+'.</p>'+availabilityHtml+'<button class="product-share product-dialog-share" type="button" onclick="shareProduct('+p.id+')">Compartilhar pelo WhatsApp</button>';
@@ -1283,8 +1283,8 @@ function renderCart() {
 
   const pricing=getCartPricing(),total=pricing.subtotal;
   const discount=appliedCoupon?Math.min(total,Number((appliedCoupon.discount_type==='percentage'?total*appliedCoupon.discount_value/100:appliedCoupon.discount_value).toFixed(2))):0;
-  const flowerLine=pricing.flowerCount?(pricing.overLimit?'Flores ('+pricing.flowerCount+' unidades): valor sob consulta':'Flores ('+pricing.flowerCount+' unidades): '+money(pricing.flowerTotal)):'';
-  document.getElementById('total').innerHTML=(flowerLine?'<div>'+flowerLine+'</div>':'')+'<div>Adicionais e pelúcias: '+money(pricing.extrasTotal)+'</div><div style="margin-top:6px;font-weight:800">Total parcial: '+money(total)+'</div>'+(pricing.overLimit?'<div class="notice">Pedidos com mais de 20 flores precisam de confirmação de valor pelo WhatsApp.</div>':'')+(discount?' <div style="color:#287344;margin-top:6px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+'</div><div style="margin-top:4px">Total parcial com desconto: '+money(total-discount)+'</div>':'');
+  const flowerLine=pricing.flowerCount?'Flores ('+pricing.flowerCount+' unidades): '+money(pricing.flowerTotal):'';
+  document.getElementById('total').innerHTML=(flowerLine?'<div>'+flowerLine+'</div>':'')+'<div>Adicionais e pelúcias: '+money(pricing.extrasTotal)+'</div><div style="margin-top:6px;font-weight:800">Total parcial: '+money(total)+'</div>'+(discount?' <div style="color:#287344;margin-top:6px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+'</div><div style="margin-top:4px">Total parcial com desconto: '+money(total-discount)+'</div>':'');
 }
 
 
@@ -1385,10 +1385,10 @@ function checkout() {
   if(appliedCoupon){lines.push('','🎟️ *Cupom:* '+appliedCoupon.code,'💚 *Desconto:* −'+money(couponDiscount));}
   lines.push(
     '',
-    '🌷 *Flores e flores especiais:* '+(pricing.flowerCount?(pricing.overLimit?pricing.flowerCount+' unidades — valor sob consulta':pricing.flowerCount+' unidades — '+money(pricing.flowerTotal)):'Nenhuma'),
+    '🌷 *Flores e flores especiais:* '+(pricing.flowerCount?pricing.flowerCount+' unidades — '+money(pricing.flowerTotal):'Nenhuma'),
     '🎀 *Adicionais e pelúcias:* '+money(pricing.extrasTotal),
     '💰 *Total parcial:* '+money(total-couponDiscount)+' (antes do desconto: '+money(total)+')',
-    ...(pricing.overLimit?['_Para pedidos acima de 20 flores, o valor das flores será confirmado pelo atendimento.']:[]),
+    
     '',
     '📝 *Detalhes e personalização:* '+(document.getElementById('notes').value||'Nenhuma'),
     '',
@@ -1564,7 +1564,7 @@ loadRemoteCatalog();
    <tr><td>19 flores</td><td>R$ 505,00</td></tr>
    <tr><td>20 flores</td><td>R$ 530,00</td></tr>
   </tbody></table>
-  <p class="price-welcome-note">Acima de 20 flores? Fale conosco pelo WhatsApp para consultar o valor do seu buquê personalizado.</p>
+  <p class="price-welcome-note">Pode adicionar mais de 20 flores: cada flor adicional continua somando R$ 25 automaticamente.</p>
   <div class="price-welcome-actions"><a href="./prices.html">Ver tabela completa</a><button type="button" onclick="closePriceWelcome()">Continuar no catálogo</button></div>
  </section>
 </div>
