@@ -7,19 +7,19 @@
 <meta name="description" content="Encontre a Giirassol Flores: monte seu buquê, peça orçamento e conheça nossas flores feitas à mão.">
 <title>Giirassol Flores | Links</title>
 <style>
-:root{--bg:#fff7d6;--card:#fff;--ink:#284b2b;--muted:#647b55;--accent:#e5b900;--line:#e9dfad}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:28px 16px 36px;background:radial-gradient(ellipse at top,#fffdf2 0,#fff7d6 56%,#e8f0d9 100%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);display:flex;justify-content:center}
+:root{--bg:#fff7d6;--header-bg:#fffdf2;--card:#fff;--ink:#284b2b;--muted:#647b55;--primary:#687c52;--details:#687c52;--accent:#e5b900;--line:#e9dfad}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:28px 16px 36px;background:radial-gradient(ellipse at top,var(--header-bg) 0,var(--bg) 56%,color-mix(in srgb,var(--bg),var(--details) 12%) 100%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);display:flex;justify-content:center}
 main{width:min(100%,460px);text-align:center}
-.logo{width:104px;height:104px;border-radius:50%;object-fit:cover;background:#fff0a8;display:grid;place-items:center;margin:10px auto 18px;font-size:48px;border:4px solid #fff;box-shadow:0 8px 24px #6a842018}
+.logo{width:104px;height:104px;border-radius:50%;object-fit:cover;background:var(--accent);display:grid;place-items:center;margin:10px auto 18px;font-size:48px;border:4px solid var(--card);box-shadow:0 8px 24px #6a842018}
 h1{font-size:27px;line-height:1.2;margin:0 0 8px;font-weight:750;letter-spacing:-.6px}
 .subtitle{margin:0 0 28px;color:var(--muted);font-size:15px}
 .links{display:grid;gap:13px}
 a.link{min-height:62px;padding:17px 20px;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--ink);font-weight:650;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 14px #6045800b;transition:transform .16s,box-shadow .16s,border-color .16s}
-a.link:hover{transform:translateY(-2px);box-shadow:0 9px 22px #60458016;border-color:#d8bd35}
-a.link:focus-visible{outline:3px solid #d8bd35;outline-offset:3px}
+a.link:hover{transform:translateY(-2px);box-shadow:0 9px 22px #00000016;border-color:var(--accent)}
+a.link:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .icon{font-size:21px}
 .social{display:flex;justify-content:center;gap:22px;margin:26px 0 20px}
-.social a{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:#fffdf2;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:20px}
+.social a{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:var(--header-bg);border:1px solid var(--line);color:var(--details);text-decoration:none;font-size:20px}
 footer{font-size:12px;color:var(--muted);margin-top:18px}
 .notice{font-size:12px;color:var(--muted);min-height:16px;margin-top:12px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -49,9 +49,24 @@ footer{font-size:12px;color:var(--muted);margin-top:18px}
   const status=document.getElementById('status');
   try{
     const client=window.supabase.createClient('https://plwtpqjdloziqgshyisn.supabase.co','sb_publishable_7fL4YZHParuDFtxctX1bcA_aOkEljcf');
-    const {data,error}=await client.from('store_settings').select('whatsapp,instagram,logo_image').eq('id',1).maybeSingle();
+    const {data,error}=await client.from('store_settings').select('whatsapp,instagram,logo_image,theme_bg,theme_header,theme_surface,theme_primary,theme_details,theme_text,theme_secondary,theme_accent,seasonal_campaigns').eq('id',1).maybeSingle();
     if(error) throw error;
     if(!data) return;
+    const palettes={
+      christmas:{theme_bg:"#FFF9F0",theme_header:"#FFF3E0",theme_surface:"#FFF7EA",theme_primary:"#C62828",theme_details:"#0F5132",theme_text:"#2E3B2D",theme_secondary:"#6B6B6B",theme_accent:"#D4AF37"},
+      easter:{theme_bg:"#FBF7FF",theme_header:"#F1E6FA",theme_surface:"#FFFFFF",theme_primary:"#9165A8",theme_details:"#B66F91",theme_text:"#45394B",theme_secondary:"#827589",theme_accent:"#E8C7A5"},
+      valentines:{theme_bg:"#FFF5F7",theme_header:"#FCE4EC",theme_surface:"#FFFFFF",theme_primary:"#B8325A",theme_details:"#7D2446",theme_text:"#482C37",theme_secondary:"#8B737C",theme_accent:"#E9A6B7"},
+      anniversary:{theme_bg:"#FFF9E8",theme_header:"#FFF0BD",theme_surface:"#FFFFFF",theme_primary:"#D89A19",theme_details:"#6C8A45",theme_text:"#493B25",theme_secondary:"#85765B",theme_accent:"#F2C94C"},
+      original:{theme_bg:"#fff9ef",theme_header:"#fff8e9",theme_surface:"#ffffff",theme_primary:"#687c52",theme_details:"#687c52",theme_text:"#4d473b",theme_secondary:"#877d6b",theme_accent:"#f5e6b8"}
+    };
+    const today=new Date(),todayKey=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+    const activeCampaign=(Array.isArray(data.seasonal_campaigns)?data.seasonal_campaigns:[]).filter(c=>c&&c.start_date&&c.end_date&&c.start_date<=todayKey&&c.end_date>=todayKey).sort((a,b)=>String(b.start_date).localeCompare(String(a.start_date)))[0]||null;
+    const palette=activeCampaign?(palettes[activeCampaign.palette]||palettes.original):null;
+    const theme={...data,...(palette||{})};
+    const root=document.documentElement;
+    [["--bg","theme_bg","#fff7d6"],["--header-bg","theme_header","#fffdf2"],["--card","theme_surface","#ffffff"],["--primary","theme_primary","#687c52"],["--details","theme_details","#687c52"],["--ink","theme_text","#284b2b"],["--muted","theme_secondary","#647b55"],["--accent","theme_accent","#e5b900"]].forEach(([variable,key,fallback])=>root.style.setProperty(variable,theme[key]||fallback));
+    root.style.setProperty("--line","color-mix(in srgb,"+(theme.theme_accent||"#e5b900")+" 48%, transparent)");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content",theme.theme_bg||"#fff7d6");
     const digits=String(data.whatsapp||'5586981748569').replace(/\D/g,'');
     const wa='https://wa.me/'+digits;
     document.getElementById('whatsapp').href=wa;
