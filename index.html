@@ -1094,7 +1094,7 @@ function getCartPricing(){
   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
   const flowerTotal=flowerCount>0?55+(flowerCount-1)*25:0;
   const extrasTotal=entries.filter(x=>x.p.category!=='Flores'&&x.p.category!=='Flores especiais').reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0);
-  return {flowerCount,flowerTotal,extrasTotal,subtotal:flowerTotal+extrasTotal,overLimit:flowerCount>20};
+  return {flowerCount,flowerTotal,extrasTotal,subtotal:flowerTotal+extrasTotal,overLimit:false};
 }
 function persist() {
   localStorage.setItem('gf_cart',JSON.stringify(cart));
