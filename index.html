@@ -1353,13 +1353,13 @@ function checkout() {
   }
 
   const lines=[
-    '*GIIRASSOL FLORES*',
+    '\u{1F33B} *GIIRASSOL FLORES*',
     '',
-    'Olá! Vim pelo catálogo e gostaria de fazer uma encomenda.',
+    'Olá! \u{1F49B} Vim pelo catálogo e gostaria de fazer uma encomenda.',
     '',
-    '*Nome:* '+(document.getElementById('customer').value||'Não informado'),
+    '\u{1F464} *Nome:* '+(document.getElementById('customer').value||'Não informado'),
     '',
-    '*MEU PEDIDO*'
+    '\u{1F9FA} *MEU PEDIDO*'
   ];
 
   cats.slice(1).forEach(cat=>{
@@ -1369,7 +1369,7 @@ function checkout() {
     })).filter(x=>x.p&&x.p.category===cat);
 
     if(items.length) {
-      lines.push('','*'+cat.toUpperCase()+'*');
+      lines.push('',''+(cat==='Flores'?'\u{1F339}':cat==='Flores especiais'?'\u{1F490}':cat==='Buquês'?'\u{1F490}':cat==='Adicionais'?'\u{1F380}':'\u{1F9F8}')+' *'+cat.toUpperCase()+'*');
       items.forEach(x=>{
         lines.push(`- ${x.q}x ${x.p.name}${x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?' — '+money(x.p.promo_active&&x.p.promo_price!=null?x.p.promo_price:x.p.price)+' cada':''}`);
       });
@@ -1377,27 +1377,27 @@ function checkout() {
   });
 
   const hasColorEligibleItems=ids.some(id=>{const p=products.find(x=>x.id==id);return p&&(p.category==='Flores'||p.category==='Flores especiais'||(p.category==='Buquês'&&p.allow_bouquet_color_choice===true));});
-  if(hasColorEligibleItems&&(((cartColorPreference.tones||[]).length)||((cartColorPreference.custom||'').trim()))){lines.push('','*COR DE PREFERÊNCIA:*');if((cartColorPreference.tones||[]).length)lines.push('Tons: '+cartColorPreference.tones.join(', '));if((cartColorPreference.custom||'').trim())lines.push('Preferência: '+cartColorPreference.custom.trim());}
+  if(hasColorEligibleItems&&(((cartColorPreference.tones||[]).length)||((cartColorPreference.custom||'').trim()))){lines.push('','\u{1F3A8} *COR DE PREFERÊNCIA:*');if((cartColorPreference.tones||[]).length)lines.push('Tons: '+cartColorPreference.tones.join(', '));if((cartColorPreference.custom||'').trim())lines.push('Preferência: '+cartColorPreference.custom.trim());}
 
   const pricing=getCartPricing(),total=pricing.subtotal;
 
   const couponDiscount=appliedCoupon?Math.min(total,Number((appliedCoupon.discount_type==='percentage'?total*appliedCoupon.discount_value/100:appliedCoupon.discount_value).toFixed(2))):0;
-  if(appliedCoupon){lines.push('','*Cupom:* '+appliedCoupon.code,'*Desconto:* −'+money(couponDiscount));}
+  if(appliedCoupon){lines.push('','\u{1F3AB} *Cupom:* '+appliedCoupon.code,'\u{1F49A} *Desconto:* −'+money(couponDiscount));}
   lines.push(
     '',
-    '*Flores e flores especiais:* '+(pricing.flowerCount?pricing.flowerCount+' unidades — '+money(pricing.flowerTotal):'Nenhuma'),
-    '*Adicionais e pelúcias:* '+money(pricing.extrasTotal),
-    '*Total parcial:* '+money(total-couponDiscount)+' (antes do desconto: '+money(total)+')',
+    '\u{1F339} *Flores e flores especiais:* '+(pricing.flowerCount?pricing.flowerCount+' unidades — '+money(pricing.flowerTotal):'Nenhuma'),
+    '\u{1F380} *Adicionais e pelúcias:* '+money(pricing.extrasTotal),
+    '\u{1F4B0} *Total parcial:* '+money(total-couponDiscount)+' (antes do desconto: '+money(total)+')',
     
     '',
-    '*Detalhes e personalização:* '+(document.getElementById('notes').value||'Nenhuma'),
+    '\u{1F4DD} *Detalhes e personalização:* '+(document.getElementById('notes').value||'Nenhuma'),
     '',
-    '*Antecedência para encomendas:* '+settings.lead+' ou conforme a nossa agenda. Por favor, considere essa disponibilidade ao escolher a data desejada.',
-    '*Forma de recebimento:* '+deliveryMethod,
-    ...(deliveryMethod==='Entrega em domicílio'?['*Endereço:* '+deliveryAddress]:[]),
-    '*Forma de pagamento:* '+paymentMethod,
+    '\u{1F33B} *Antecedência para encomendas:* '+settings.lead+' ou conforme a nossa agenda. Por favor, considere essa disponibilidade ao escolher a data desejada.',
+    '\u{1F69A} *Forma de recebimento:* '+deliveryMethod,
+    ...(deliveryMethod==='Entrega em domicílio'?['\u{1F4CD} *Endereço:* '+deliveryAddress]:[]),
+    '\u{1F4B3} *Forma de pagamento:* '+paymentMethod,
     '',
-    'Poderiam, por favor, confirmar o valor final, o frete e a disponibilidade?',
+    '\u{1F4AC} Poderiam, por favor, confirmar o valor final, o frete e a disponibilidade?',
     '',
 
   );
