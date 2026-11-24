@@ -1098,8 +1098,13 @@ function getCartPricing(){
   const entries=Object.keys(cart).map(id=>({p:products.find(x=>String(x.id)===String(id)),q:Number(cart[id])||0})).filter(x=>x.p&&x.p.available!==false);
   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
   const flowerTotal=flowerCount>0?55+(flowerCount-1)*25:0;
-  const extrasTotal=entries.filter(x=>x.p.category!=='Flores'&&x.p.category!=='Flores especiais').reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0);
-  return {flowerCount,flowerTotal,extrasTotal,subtotal:flowerTotal+extrasTotal,overLimit:false};
+  const categoryTotals={};
+  ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias'].forEach(category=>{
+    const selected=entries.filter(x=>x.p.category===category);
+    categoryTotals[category]={count:selected.reduce((sum,x)=>sum+x.q,0),total:selected.reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0)};
+  });
+  const extrasTotal=categoryTotals['Buquês'].total+categoryTotals['Adicionais'].total+categoryTotals['Pelúcias'].total;
+  return {flowerCount,flowerTotal,extrasTotal,categoryTotals,subtotal:flowerTotal+extrasTotal,overLimit:false};
 }
 function persist() {
   localStorage.setItem('gf_cart',JSON.stringify(cart));
@@ -1580,15 +1585,4 @@ loadRemoteCatalog();
  </section>
 </div>
 </body>
-</html> function getCartPricing(){
-   const entries=Object.keys(cart).map(id=>({p:products.find(x=>String(x.id)===String(id)),q:Number(cart[id])||0})).filter(x=>x.p&&x.p.available!==false);
-   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
-   const flowerTotal=flowerCount>0?55+(flowerCount-1)*25:0;
-   const categoryTotals={};
-   ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias'].forEach(category=>{
-     const selected=entries.filter(x=>x.p.category===category);
-     categoryTotals[category]={count:selected.reduce((sum,x)=>sum+x.q,0),total:selected.reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0)};
-   });
-   const extrasTotal=categoryTotals['Buquês'].total+categoryTotals['Adicionais'].total+categoryTotals['Pelúcias'].total;
-   return {flowerCount,flowerTotal,extrasTotal,categoryTotals,subtotal:flowerTotal+extrasTotal,overLimit:false};
- }
+</html>
