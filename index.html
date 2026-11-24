@@ -1425,7 +1425,9 @@ function checkout() {
   );
 
   const message=lines.join('\n');
-  window.gfCheckoutUrl='https://wa.me/'+phone+'?text='+encodeURIComponent(message);
+  // Encode UTF-8 bytes explicitly for emoji and accented characters through Instagram/Chrome/WhatsApp handoffs.
+  const encodedMessage=Array.from(new TextEncoder().encode(message),byte=>'%'+byte.toString(16).toUpperCase().padStart(2,'0')).join('');
+  window.gfCheckoutUrl='https://api.whatsapp.com/send?phone='+phone+'&text='+encodedMessage;
   document.getElementById('orderConfirmationPreview').textContent=message;
   const confirmation=document.getElementById('orderConfirmation');
   confirmation.classList.add('open');
