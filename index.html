@@ -1369,7 +1369,7 @@ function checkout() {
     })).filter(x=>x.p&&x.p.category===cat);
 
     if(items.length) {
-      lines.push('','* '+cat.toUpperCase()+' *'');
+      lines.push('','* '+cat.toUpperCase()+' *');
       items.forEach(x=>{
         lines.push(`- ${x.q}x ${x.p.name}${x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?' — '+money(x.p.promo_active&&x.p.promo_price!=null?x.p.promo_price:x.p.price)+' cada':''}`);
       });
