@@ -1120,12 +1120,15 @@ function categoryIcon(c){if(c==='Todos')return '<svg viewBox="0 0 24 24" aria-hi
 function renderTabs() {
   const tabs=document.getElementById('tabs');
   if(!tabs)return;
+  const cats=getCatalogCategories();
+  if(active!=='Todos'&&!cats.includes(active))active='Todos';
   tabs.innerHTML = cats.map(c =>
     `<button type="button" class="tab ${active===c?'active':''}" data-category="${escapeProductText(c)}">${categoryIcon(c)}<span>${escapeProductText(c)}</span></button>`
   ).join('');
   tabs.querySelectorAll('[data-category]').forEach(button=>{
     button.addEventListener('click',()=>setCategory(button.dataset.category));
   });
+  document.querySelectorAll('[data-drawer-category]').forEach(button=>{button.hidden=!cats.includes(button.dataset.drawerCategory);});
 }
 
 function setCategory(c) {
