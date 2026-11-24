@@ -807,6 +807,11 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
 .price-welcome-actions a{background:#687c52;color:white;border:1px solid #687c52}
 .price-welcome-actions button{background:#fff;border:1px solid #d9e2ca;color:#45633b}
 @media(max-width:420px){.price-welcome-modal{padding:16px}.price-welcome-table th,.price-welcome-table td{padding:8px 5px;font-size:13px}.price-welcome-actions{grid-template-columns:1fr}}
+/* Mobile checkout: keep the review dialog fully within the viewport, including browsers opened from social bio links. */
+@media(max-width:700px){
+  .order-confirmation{align-items:center!important;padding:10px!important;background:rgba(0,0,0,.68)!important}
+  .order-confirmation-card{width:100%!important;max-height:calc(100vh - 20px)!important;max-height:calc(100dvh - 20px)!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain;border-radius:18px!important;padding:18px 16px calc(18px + env(safe-area-inset-bottom))!important}
+}
 </style>
 </head>
 
