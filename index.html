@@ -1288,8 +1288,15 @@ function renderCart() {
 
   const pricing=getCartPricing(),total=pricing.subtotal;
   const discount=appliedCoupon?Math.min(total,Number((appliedCoupon.discount_type==='percentage'?total*appliedCoupon.discount_value/100:appliedCoupon.discount_value).toFixed(2))):0;
-  const flowerLine=pricing.flowerCount?'Flores ('+pricing.flowerCount+' unidades): '+money(pricing.flowerTotal):'';
-  document.getElementById('total').innerHTML=(flowerLine?'<div>'+flowerLine+'</div>':'')+'<div>Adicionais e pelúcias: '+money(pricing.extrasTotal)+'</div><div style="margin-top:6px;font-weight:800">Total parcial: '+money(total)+'</div>'+(discount?' <div style="color:#287344;margin-top:6px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+'</div><div style="margin-top:4px">Total parcial com desconto: '+money(total-discount)+'</div>':'');
+  const ct=pricing.categoryTotals;
+  const categoryLines=[];
+  if(ct['Flores'].count)categoryLines.push('<div>Flores: '+ct['Flores'].count+' unidade(s)</div>');
+  if(ct['Flores especiais'].count)categoryLines.push('<div>Flores especiais: '+ct['Flores especiais'].count+' unidade(s)</div>');
+  if(pricing.flowerCount)categoryLines.push('<div>Valor calculado das flores: '+money(pricing.flowerTotal)+'</div>');
+  ['Buquês','Adicionais','Pelúcias'].forEach(category=>{if(ct[category].count)categoryLines.push('<div>'+category+': '+money(ct[category].total)+'</div>');});
+  categoryLines.push('<div style="margin-top:6px;font-weight:800">Total parcial: '+money(total-discount)+'</div>');
+  if(discount)categoryLines.push('<div style="color:#287344;margin-top:4px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+' (valor antes do desconto: '+money(total)+')</div>');
+  document.getElementById('total').innerHTML=categoryLines.join('');
 }
 
 
@@ -1384,19 +1391,18 @@ function checkout() {
   const hasColorEligibleItems=ids.some(id=>{const p=products.find(x=>x.id==id);return p&&(p.category==='Flores'||p.category==='Flores especiais'||(p.category==='Buquês'&&p.allow_bouquet_color_choice===true));});
   if(hasColorEligibleItems&&(((cartColorPreference.tones||[]).length)||((cartColorPreference.custom||'').trim()))){lines.push('','\u{1F3A8} *COR DE PREFERÊNCIA:*');if((cartColorPreference.tones||[]).length)lines.push('Tons: '+cartColorPreference.tones.join(', '));if((cartColorPreference.custom||'').trim())lines.push('Preferência: '+cartColorPreference.custom.trim());}
 
-  const pricing=getCartPricing(),total=pricing.subtotal;
+  const pricing=getCartPricing(),total=pricing.subtotal,ct=pricing.categoryTotals;
 
   const couponDiscount=appliedCoupon?Math.min(total,Number((appliedCoupon.discount_type==='percentage'?total*appliedCoupon.discount_value/100:appliedCoupon.discount_value).toFixed(2))):0;
   if(appliedCoupon){lines.push('','\u{1F3AB} *Cupom:* '+appliedCoupon.code,'\u{1F49A} *Desconto:* −'+money(couponDiscount));}
-  lines.push(
-    '',
-    '\u{1F339} *Flores e flores especiais:* '+(pricing.flowerCount?pricing.flowerCount+' unidades — '+money(pricing.flowerTotal):'Nenhuma'),
-    '\u{1F380} *Adicionais e pelúcias:* '+money(pricing.extrasTotal),
-    '\u{1F4B0} *Total parcial:* '+money(total-couponDiscount)+' (antes do desconto: '+money(total)+')',
-    
-    '',
-    '\u{1F4DD} *Detalhes e personalização:* '+(document.getElementById('notes').value||'Nenhuma'),
-    '',
+  if(ct['Flores'].count)lines.push('','\u{1F339} *FLORES:* '+ct['Flores'].count+' unidade(s)');
+  if(ct['Flores especiais'].count)lines.push('','\u{1F490} *FLORES ESPECIAIS:* '+ct['Flores especiais'].count+' unidade(s)');
+  if(pricing.flowerCount)lines.push('\u{1F4B0} *Valor calculado das flores:* '+money(pricing.flowerTotal));
+  ['Buquês','Adicionais','Pelúcias'].forEach(category=>{if(ct[category].count){const emoji=category==='Buquês'?'\u{1F490}':category==='Adicionais'?'\u{1F380}':'\u{1F9F8}';lines.push('',''+emoji+' *'+category.toUpperCase()+':* '+money(ct[category].total));}});
+  lines.push('','\u{1F4B0} *Total parcial:* '+money(total-couponDiscount)+(couponDiscount?' (valor antes do desconto: '+money(total)+')':''));
+  const orderNotes=(document.getElementById('notes').value||'').trim();
+  if(orderNotes)lines.push('','\u{1F4DD} *Detalhes e personalização:* '+orderNotes);
+  lines.push('',
     '\u{1F33B} *Antecedência para encomendas:* '+settings.lead+' ou conforme a nossa agenda. Por favor, considere essa disponibilidade ao escolher a data desejada.',
     '\u{1F69A} *Forma de recebimento:* '+deliveryMethod,
     ...(deliveryMethod==='Entrega em domicílio'?['\u{1F4CD} *Endereço:* '+deliveryAddress]:[]),
