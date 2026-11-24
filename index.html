@@ -834,11 +834,13 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
 <aside class="mobile-drawer" id="mobileDrawer" aria-label="Menu da loja">
   <div class="drawer-head"><b>Menu</b><button type="button" onclick="toggleMobileMenu(false)" aria-label="Fechar menu">✕</button></div>
   <button type="button" onclick="setCategory('Todos');toggleMobileMenu(false)">Todos os produtos</button>
-  <button type="button" onclick="setCategory('Flores');toggleMobileMenu(false)">Flores</button>
-  <button type="button" onclick="setCategory('Flores especiais');toggleMobileMenu(false)">Flores especiais</button>
-  <button type="button" onclick="setCategory('Buquês');toggleMobileMenu(false)">Buquês</button>
-  <button type="button" onclick="setCategory('Adicionais');toggleMobileMenu(false)">Adicionais</button>
-  <button type="button" onclick="setCategory('Pelúcias');toggleMobileMenu(false)">Pelúcias</button>
+  <button type="button" data-drawer-category="Flores" onclick="setCategory('Flores');toggleMobileMenu(false)">Flores</button>
+  <button type="button" data-drawer-category="Flores especiais" onclick="setCategory('Flores especiais');toggleMobileMenu(false)">Flores especiais</button>
+  <button type="button" data-drawer-category="Buquês" onclick="setCategory('Buquês');toggleMobileMenu(false)">Buquês</button>
+  <button type="button" data-drawer-category="Adicionais" onclick="setCategory('Adicionais');toggleMobileMenu(false)">Adicionais</button>
+  <button type="button" data-drawer-category="Pelúcias" onclick="setCategory('Pelúcias');toggleMobileMenu(false)">Pelúcias</button>
+  <button type="button" data-drawer-category="Vasinhos 🪴" hidden onclick="setCategory('Vasinhos 🪴');toggleMobileMenu(false)">Vasinhos 🪴</button>
+  <button type="button" data-drawer-category="Chaveiros 🗝️" hidden onclick="setCategory('Chaveiros 🗝️');toggleMobileMenu(false)">Chaveiros 🗝️</button>
   <button type="button" onclick="showFavorites();toggleMobileMenu(false)">♡ Meus favoritos</button>
 </aside>
 
