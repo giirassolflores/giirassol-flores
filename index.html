@@ -1085,7 +1085,8 @@ function updateCustomColor(value){cartColorPreference.custom=value;saveCartColor
 let active = 'Todos';
 let favoritesOnly=false;let favorites=JSON.parse(localStorage.getItem('gf_favorites')||'[]');
 
-const cats = ['Todos','Flores','Flores especiais','Buquês','Adicionais','Pelúcias'];
+const baseCats = ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'];
+ function getCatalogCategories(){const visible=new Set(products.filter(p=>p.active!==false&&p.category).map(p=>p.category));return ['Todos',...baseCats.filter(category=>visible.has(category))];}
 
 function money(v) {
   return Number(v||0).toLocaleString('pt-BR',{
@@ -1099,11 +1100,11 @@ function getCartPricing(){
   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
   const flowerTotal=flowerCount>0?55+(flowerCount-1)*25:0;
   const categoryTotals={};
-  ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias'].forEach(category=>{
+  ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{
     const selected=entries.filter(x=>x.p.category===category);
     categoryTotals[category]={count:selected.reduce((sum,x)=>sum+x.q,0),total:selected.reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0)};
   });
-  const extrasTotal=categoryTotals['Buquês'].total+categoryTotals['Adicionais'].total+categoryTotals['Pelúcias'].total;
+  const extrasTotal=['Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].reduce((sum,category)=>sum+categoryTotals[category].total,0);
   return {flowerCount,flowerTotal,extrasTotal,categoryTotals,subtotal:flowerTotal+extrasTotal,overLimit:false};
 }
 function persist() {
@@ -1113,7 +1114,7 @@ function persist() {
   const head=document.getElementById('headCount');if(head)head.textContent=Object.values(cart).reduce((a,b)=>a+b,0);
 }
 
-function categoryIcon(c){if(c==='Todos')return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';const emojis={Flores:'🌻','Flores especiais':'🌷','Buquês':'💐',Adicionais:'🎁',Pelúcias:'🧸'};return '<span class="tab-emoji" aria-hidden="true">'+(emojis[c]||'')+'</span>'}
+function categoryIcon(c){if(c==='Todos')return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';const emojis={Flores:'🌻','Flores especiais':'🌷','Buquês':'💐',Adicionais:'🎁',Pelúcias:'🧸','Vasinhos 🪴':'🪴','Chaveiros 🗝️':'🗝️'};return '<span class="tab-emoji" aria-hidden="true">'+(emojis[c]||'')+'</span>'}
 function renderTabs() {
   const tabs=document.getElementById('tabs');
   if(!tabs)return;
@@ -1298,7 +1299,7 @@ function renderCart() {
   if(ct['Flores'].count)categoryLines.push('<div>Flores: '+ct['Flores'].count+' unidade(s)</div>');
   if(ct['Flores especiais'].count)categoryLines.push('<div>Flores especiais: '+ct['Flores especiais'].count+' unidade(s)</div>');
   if(pricing.flowerCount)categoryLines.push('<div>Valor calculado das flores: '+money(pricing.flowerTotal)+'</div>');
-  ['Buquês','Adicionais','Pelúcias'].forEach(category=>{if(ct[category].count)categoryLines.push('<div>'+category+': '+money(ct[category].total)+'</div>');});
+  ['Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{if(ct[category].count)categoryLines.push('<div>'+category+': '+money(ct[category].total)+'</div>');});
   categoryLines.push('<div style="margin-top:6px;font-weight:800">Total parcial: '+money(total-discount)+'</div>');
   if(discount)categoryLines.push('<div style="color:#287344;margin-top:4px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+' (valor antes do desconto: '+money(total)+')</div>');
   document.getElementById('total').innerHTML=categoryLines.join('');
@@ -1379,7 +1380,7 @@ function checkout() {
     '\u{1F9FA} *MEU PEDIDO*'
   ];
 
-  cats.slice(1).forEach(cat=>{
+  getCatalogCategories().slice(1).forEach(cat=>{
     const items=ids.map(id=>({
       p:products.find(x=>x.id==id),
       q:cart[id]
@@ -1403,7 +1404,7 @@ function checkout() {
   if(ct['Flores'].count)lines.push('','\u{1F339} *FLORES:* '+ct['Flores'].count+' unidade(s)');
   if(ct['Flores especiais'].count)lines.push('','\u{1F490} *FLORES ESPECIAIS:* '+ct['Flores especiais'].count+' unidade(s)');
   if(pricing.flowerCount)lines.push('\u{1F4B0} *Valor calculado das flores:* '+money(pricing.flowerTotal));
-  ['Buquês','Adicionais','Pelúcias'].forEach(category=>{if(ct[category].count){const emoji=category==='Buquês'?'\u{1F490}':category==='Adicionais'?'\u{1F380}':'\u{1F9F8}';lines.push('',''+emoji+' *'+category.toUpperCase()+':* '+money(ct[category].total));}});
+  ['Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{if(ct[category].count){const emoji=category==='Buquês'?'\u{1F490}':category==='Adicionais'?'\u{1F380}':category==='Pelúcias'?'\u{1F9F8}':category==='Vasinhos 🪴'?'\u{1FAB4}':'\u{1F5DD}';lines.push('',''+emoji+' *'+category.toUpperCase()+':* '+money(ct[category].total));}});
   lines.push('','\u{1F4B0} *Total parcial:* '+money(total-couponDiscount)+(couponDiscount?' (valor antes do desconto: '+money(total)+')':''));
   const orderNotes=(document.getElementById('notes').value||'').trim();
   if(orderNotes)lines.push('','\u{1F4DD} *Detalhes e personalização:* '+orderNotes);
