@@ -789,24 +789,6 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 
-/* Price table welcome popup */
-.price-welcome-overlay{display:none;position:fixed;inset:0;z-index:1000;background:#26351fcc;backdrop-filter:blur(4px);padding:14px;align-items:center;justify-content:center}
-.price-welcome-overlay.open{display:flex}
-.price-welcome-modal{position:relative;width:min(100%,460px);max-height:calc(100vh - 28px);overflow:auto;background:#fffdf6;border:2px solid #e5b900;border-radius:22px;padding:20px;box-shadow:0 18px 60px #0004;color:#284b2b}
-.price-welcome-close{position:sticky;float:right;top:0;margin:-8px -8px 0 8px;width:36px;height:36px;border:0;border-radius:50%;background:#e8f0d9;color:#284b2b;font-size:25px;line-height:1;cursor:pointer}
-.price-welcome-modal h2{margin:2px 0 6px;text-align:center;font-size:23px;color:#284b2b}
-.price-welcome-sub{margin:0 0 9px;text-align:center;color:#647b55;font-size:13px}.price-welcome-includes{margin:0 0 15px;text-align:center;color:#647b55;font-size:12px;line-height:1.45}
-.price-welcome-table{width:100%;border-collapse:collapse;font-size:14px}
-.price-welcome-table th,.price-welcome-table td{padding:9px 7px;border-bottom:1px solid #eee7cc;text-align:left}
-.price-welcome-table th{font-size:12px;color:#647b55}
-.price-welcome-table td:last-child,.price-welcome-table th:last-child{text-align:right}
-.price-welcome-table td:last-child{font-weight:800;color:#587d28;white-space:nowrap}
-.price-welcome-note{font-size:12px;line-height:1.45;text-align:center;color:#647b55;margin:13px 0}
-.price-welcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-.price-welcome-actions a,.price-welcome-actions button{display:flex;align-items:center;justify-content:center;min-height:45px;border-radius:12px;padding:10px;text-align:center;text-decoration:none;font-size:13px;font-weight:800;cursor:pointer}
-.price-welcome-actions a{background:#687c52;color:white;border:1px solid #687c52}
-.price-welcome-actions button{background:#fff;border:1px solid #d9e2ca;color:#45633b}
-@media(max-width:420px){.price-welcome-modal{padding:16px}.price-welcome-table th,.price-welcome-table td{padding:8px 5px;font-size:13px}.price-welcome-actions{grid-template-columns:1fr}}
 /* Mobile checkout: keep the review dialog fully within the viewport, including browsers opened from social bio links. */
 @media(max-width:700px){
   .order-confirmation{align-items:center!important;padding:10px!important;background:rgba(0,0,0,.68)!important}
@@ -1544,12 +1526,6 @@ function renderFooter() {
 }
 
 
-function openPriceWelcome(){const overlay=document.getElementById('priceWelcomeOverlay');if(!overlay)return;overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
-function closePriceWelcome(){const overlay=document.getElementById('priceWelcomeOverlay');if(!overlay)return;overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';try{sessionStorage.setItem('gf_price_popup_seen','1');}catch(e){}}
-document.getElementById('priceWelcomeOverlay')?.addEventListener('click',event=>{if(event.target===event.currentTarget)closePriceWelcome();});
-document.addEventListener('keydown',event=>{if(event.key==='Escape')closePriceWelcome();});
-try{if(!sessionStorage.getItem('gf_price_popup_seen')){window.setTimeout(openPriceWelcome,650);}}catch(e){window.setTimeout(openPriceWelcome,650);}
-
 renderTabs();
 renderProducts();
 renderCart();
@@ -1560,37 +1536,5 @@ loadRemoteCatalog();
 </script>
 
 
-<div class="price-welcome-overlay" id="priceWelcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="priceWelcomeTitle" aria-hidden="true">
- <section class="price-welcome-modal">
-  <button class="price-welcome-close" type="button" aria-label="Fechar tabela de preços" onclick="closePriceWelcome()">×</button>
-  <h2 id="priceWelcomeTitle">🌻 Tabela de preços</h2>
-  <p class="price-welcome-sub">Flores eternas feitas à mão</p>
-  <p class="price-welcome-includes">Os valores já incluem florzinhas extras, folhagens de ornamentação e embrulho personalizado.</p>
-  <table class="price-welcome-table"><thead><tr><th>Quantidade de flores</th><th>Valor</th></tr></thead><tbody>
-   <tr><td>1 flor</td><td>R$ 55,00</td></tr>
-   <tr><td>2 flores</td><td>R$ 80,00</td></tr>
-   <tr><td>3 flores</td><td>R$ 105,00</td></tr>
-   <tr><td>4 flores</td><td>R$ 130,00</td></tr>
-   <tr><td>5 flores</td><td>R$ 155,00</td></tr>
-   <tr><td>6 flores</td><td>R$ 180,00</td></tr>
-   <tr><td>7 flores</td><td>R$ 205,00</td></tr>
-   <tr><td>8 flores</td><td>R$ 230,00</td></tr>
-   <tr><td>9 flores</td><td>R$ 255,00</td></tr>
-   <tr><td>10 flores</td><td>R$ 280,00</td></tr>
-   <tr><td>11 flores</td><td>R$ 305,00</td></tr>
-   <tr><td>12 flores</td><td>R$ 330,00</td></tr>
-   <tr><td>13 flores</td><td>R$ 355,00</td></tr>
-   <tr><td>14 flores</td><td>R$ 380,00</td></tr>
-   <tr><td>15 flores</td><td>R$ 405,00</td></tr>
-   <tr><td>16 flores</td><td>R$ 430,00</td></tr>
-   <tr><td>17 flores</td><td>R$ 455,00</td></tr>
-   <tr><td>18 flores</td><td>R$ 480,00</td></tr>
-   <tr><td>19 flores</td><td>R$ 505,00</td></tr>
-   <tr><td>20 flores</td><td>R$ 530,00</td></tr>
-  </tbody></table>
-  <p class="price-welcome-note">Pode adicionar mais de 20 flores: cada flor adicional continua somando R$ 25 automaticamente.</p>
-  <div class="price-welcome-actions"><a href="./prices.html">Ver tabela completa</a><button type="button" onclick="closePriceWelcome()">Continuar no catálogo</button></div>
- </section>
-</div>
 </body>
 </html>
