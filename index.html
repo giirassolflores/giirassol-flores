@@ -935,7 +935,7 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
 
   <p class="notice">
     Flores e flores especiais não têm preço exibido.
-     Flores e flores especiais: 1 flor R$ 50 e cada flor adicional + R$ 25, sem limite de quantidade. Pelúcias e adicionais somam seus preços cadastrados.
+     Flores: 1 flor R$ 50 e cada adicional + R$ 25. Flores especiais têm acréscimo de R$ 5 por flor. Sem limite de quantidade. Pelúcias e adicionais somam seus preços cadastrados.
   </p>
 
   <button class="btn" style="width:100%" onclick="checkout()">
@@ -1082,14 +1082,16 @@ function money(v) {
 function getCartPricing(){
   const entries=Object.keys(cart).map(id=>({p:products.find(x=>String(x.id)===String(id)),q:Number(cart[id])||0})).filter(x=>x.p&&x.p.available!==false);
   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
+  const specialFlowerCount=entries.filter(x=>x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
   const flowerTotal=flowerCount>0?50+(flowerCount-1)*25:0;
+  const specialFlowerSurcharge=specialFlowerCount*5;
   const categoryTotals={};
   ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{
     const selected=entries.filter(x=>x.p.category===category);
     categoryTotals[category]={count:selected.reduce((sum,x)=>sum+x.q,0),total:selected.reduce((sum,x)=>sum+(x.p.price!==null&&x.p.price!==''&&x.p.price!==undefined?(x.p.promo_active&&x.p.promo_price!=null?Number(x.p.promo_price):Number(x.p.price))*x.q:0),0)};
   });
   const extrasTotal=['Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].reduce((sum,category)=>sum+categoryTotals[category].total,0);
-  return {flowerCount,flowerTotal,extrasTotal,categoryTotals,subtotal:flowerTotal+extrasTotal,overLimit:false};
+  return {flowerCount,flowerTotal,specialFlowerCount,specialFlowerSurcharge,extrasTotal,categoryTotals,subtotal:flowerTotal+specialFlowerSurcharge+extrasTotal,overLimit:false};
 }
 function persist() {
   localStorage.setItem('gf_cart',JSON.stringify(cart));
@@ -1213,7 +1215,7 @@ function openProductDetails(id){
   const hasPrice=p.price!==null&&p.price!==''&&p.price!==undefined;
   const priceHtml=p.promo_active&&p.promo_price!=null?'<span class="old-price">'+money(p.price)+'</span> <span class="sale-tag">PROMOÇÃO</span><br>'+money(p.promo_price):(hasPrice?money(p.price):'Valor a confirmar');
   const imageHtml=p.image?'<img class="product-dialog-image" src="'+escapeProductText(p.image)+'" alt="'+escapeProductText(p.name)+'">':'<div class="noimage product-dialog-image">Foto a adicionar</div>';
-  const note=(p.category==='Flores'||p.category==='Flores especiais')?'Valor calculado automaticamente: 1 flor R$ 50 e cada adicional + R$ 25.':'Consulte a disponibilidade pelo atendimento.';
+  const note=(p.category==='Flores especiais')?'Valor calculado automaticamente: 1 flor R$ 50, cada adicional + R$ 25 e acréscimo de R$ 5 por flor especial.':(p.category==='Flores'?'Valor calculado automaticamente: 1 flor R$ 50 e cada adicional + R$ 25.':'Consulte a disponibilidade pelo atendimento.');
   const outOfStock=p.stock_quantity!==null&&p.stock_quantity!==undefined&&Number(p.stock_quantity)<=0;const availabilityHtml=p.available===false||outOfStock?'<div class="unavailable-label">Indisponível no momento<button class="waitlist-cta" type="button" data-waitlist-id="'+p.id+'" data-product-name="'+escapeProductText(p.name)+'">Avise-me quando voltar</button></div>':'<button class="product-dialog-add" type="button" onclick="add('+p.id+',null);closeProductDetails()">Adicionar ao carrinho</button>';
   const descriptionHtml=p.description?'<div class="product-dialog-description">'+escapeProductText(p.description).replace(/\n/g,'<br>')+'</div>':'';
   document.getElementById('productDialogContent').innerHTML=imageHtml+'<h2 class="product-dialog-name" id="productDialogName">'+escapeProductText(p.name)+'</h2><div class="product-dialog-category">'+escapeProductText(p.category)+'</div><div class="product-dialog-price">'+priceHtml+'</div>'+descriptionHtml+'<p class="product-dialog-note">'+note+' Encomendas com '+escapeProductText(settings.lead)+'.</p>'+availabilityHtml+'<button class="product-share product-dialog-share" type="button" onclick="shareProduct('+p.id+')">Compartilhar pelo WhatsApp</button>';
@@ -1286,6 +1288,7 @@ function renderCart() {
   if(ct['Flores'].count)categoryLines.push('<div>Flores: '+ct['Flores'].count+' unidade(s)</div>');
   if(ct['Flores especiais'].count)categoryLines.push('<div>Flores especiais: '+ct['Flores especiais'].count+' unidade(s)</div>');
   if(pricing.flowerCount)categoryLines.push('<div>Valor calculado das flores: '+money(pricing.flowerTotal)+'</div>');
+  if(pricing.specialFlowerSurcharge)categoryLines.push('<div>Acréscimo de flores especiais ('+pricing.specialFlowerCount+' × R$ 5,00): '+money(pricing.specialFlowerSurcharge)+'</div>');
   ['Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{if(ct[category].count)categoryLines.push('<div>'+category+': '+money(ct[category].total)+'</div>');});
   categoryLines.push('<div style="margin-top:6px;font-weight:800">Total parcial: '+money(total-discount)+'</div>');
   if(discount)categoryLines.push('<div style="color:#287344;margin-top:4px">Cupom '+escapeProductText(appliedCoupon.code)+': −'+money(discount)+' (valor antes do desconto: '+money(total)+')</div>');
@@ -1391,6 +1394,7 @@ function checkout() {
   if(ct['Flores'].count)lines.push('','\u{1F339} *FLORES:* '+ct['Flores'].count+' unidade(s)');
   if(ct['Flores especiais'].count)lines.push('','\u{1F490} *FLORES ESPECIAIS:* '+ct['Flores especiais'].count+' unidade(s)');
   if(pricing.flowerCount)lines.push('\u{1F4B0} *Valor calculado das flores:* '+money(pricing.flowerTotal));
+  if(pricing.specialFlowerSurcharge)lines.push('*Acréscimo de flores especiais ('+pricing.specialFlowerCount+' × R$ 5,00):* '+money(pricing.specialFlowerSurcharge));
   ['Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{if(ct[category].count){const emoji=category==='Buquês'?'\u{1F490}':category==='Adicionais'?'\u{1F380}':category==='Pelúcias'?'\u{1F9F8}':category==='Vasinhos 🪴'?'\u{1FAB4}':'\u{1F5DD}';lines.push('',''+emoji+' *'+category.toUpperCase()+':* '+money(ct[category].total));}});
   lines.push('','\u{1F4B0} *Total parcial:* '+money(total-couponDiscount)+(couponDiscount?' (valor antes do desconto: '+money(total)+')':''));
   const orderNotes=(document.getElementById('notes').value||'').trim();
