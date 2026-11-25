@@ -1054,15 +1054,24 @@ main.wrap{max-width:none!important;width:100%!important;padding:20px clamp(14px,
 
 <body>
 
+<div id="homeTop" aria-hidden="true"></div>
 <header class="brand-header">
-  <img class="header-decor decor-left" id="decorHeaderLeft" alt="" aria-hidden="true">
-  <button class="mobile-head-action menu-open" type="button" onclick="toggleMobileMenu(true)" aria-label="Abrir menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-  <img id="storeLogo" class="store-logo" src="" alt="Logo Giirassol Flores" style="display:none">
-  <div class="mobile-head-actions">
-    <button class="mobile-head-action" type="button" onclick="toggleSearch()" aria-label="Pesquisar"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button>
-    <button class="mobile-head-action cart-head" type="button" onclick="toggleCart()" aria-label="Abrir carrinho"><svg viewBox="0 0 24 24"><path d="M2 3h2l2.2 12.2a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 1.9-1.4L22 8H5"/><circle cx="9" cy="21" r="1.2"/><circle cx="18" cy="21" r="1.2"/></svg><span id="headCount">0</span></button>
-  </div>
-  <img class="header-decor decor-right" id="decorHeaderRight" alt="" aria-hidden="true">
+<img class="header-decor decor-left" id="decorHeaderLeft" alt="" aria-hidden="true">
+<img id="storeLogo" class="store-logo" src="" alt="Logo Giirassol Flores" style="display:none">
+<span id="storeLogoFallback" class="store-logo-fallback" aria-label="Giirassol Flores">🌻</span>
+<nav class="desktop-nav" aria-label="Navegação principal">
+<a href="#homeTop" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">Início</a>
+<a href="#catalogTitle" onclick="scrollToCatalog(event)">Loja</a>
+<a href="#homeIntroTitle">Sobre a loja</a>
+<a href="#reviewsSection">Avaliações</a>
+<a href="#storeFooter">Contato</a>
+</nav>
+<button class="mobile-head-action menu-open" type="button" onclick="toggleMobileMenu(true)" aria-label="Abrir menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+<div class="mobile-head-actions">
+<button class="mobile-head-action" type="button" onclick="toggleSearch()" aria-label="Pesquisar"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button>
+<button class="mobile-head-action cart-head" type="button" onclick="toggleCart()" aria-label="Abrir carrinho"><svg viewBox="0 0 24 24"><path d="M2 3h2l2.2 12.2a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 1.9-1.4L22 8H5"/><circle cx="9" cy="21" r="1.2"/><circle cx="18" cy="21" r="1.2"/></svg><span id="headCount">0</span></button>
+</div>
+<img class="header-decor decor-right" id="decorHeaderRight" alt="" aria-hidden="true">
 </header>
 
 
@@ -1071,10 +1080,12 @@ main.wrap{max-width:none!important;width:100%!important;padding:20px clamp(14px,
 <aside class="mobile-drawer" id="mobileDrawer" aria-label="Menu da loja">
   <div class="drawer-head"><b>Menu</b><button type="button" onclick="toggleMobileMenu(false)" aria-label="Fechar menu">✕</button></div>
   <button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'});toggleMobileMenu(false)">Início</button>
-  <button type="button" onclick="toggleCart();toggleMobileMenu(false)">Carrinho / Pedidos</button>
-  <button type="button" onclick="contactStore();toggleMobileMenu(false)">Falar com a loja</button>
-  <button type="button" onclick="setCategory('Todos');toggleMobileMenu(false);scrollToCatalog()">Todos os produtos</button>
-  <button type="button" data-drawer-category="Flores" onclick="setCategory('Flores');toggleMobileMenu(false)">Flores</button>
+<button type="button" onclick="scrollToCatalog();toggleMobileMenu(false)">Loja — todos os produtos</button>
+<button type="button" onclick="document.getElementById('homeIntroTitle').scrollIntoView({behavior:'smooth'});toggleMobileMenu(false)">Sobre a loja</button>
+<button type="button" onclick="document.getElementById('reviewsSection')?.scrollIntoView({behavior:'smooth'});toggleMobileMenu(false)">Avaliações</button>
+<button type="button" onclick="contactStore();toggleMobileMenu(false)">Contato / WhatsApp</button>
+<button type="button" onclick="toggleCart();toggleMobileMenu(false)">Carrinho / Pedidos</button>
+<button type="button" data-drawer-category="Flores" onclick="setCategory('Flores');toggleMobileMenu(false)">Flores</button>
   <button type="button" data-drawer-category="Flores especiais" onclick="setCategory('Flores especiais');toggleMobileMenu(false)">Flores especiais</button>
   <button type="button" data-drawer-category="Buquês" onclick="setCategory('Buquês');toggleMobileMenu(false)">Buquês</button>
   <button type="button" data-drawer-category="Adicionais" onclick="setCategory('Adicionais');toggleMobileMenu(false)">Adicionais</button>
@@ -1234,7 +1245,7 @@ main.wrap{max-width:none!important;width:100%!important;padding:20px clamp(14px,
 <div class="review-submit-full"><label for="customerReviewPhoto">Foto do seu pedido (opcional)</label><input id="customerReviewPhoto" class="field" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG ou WEBP, até 5 MB.</small></div>
 <div class="review-submit-full"><button class="btn" id="sendCustomerReview" type="submit">Enviar minha avaliação</button><p class="review-submit-status" id="customerReviewStatus" role="status" aria-live="polite"></p></div>
 </div></form></section>
-<footer class="footer">
+<footer class="footer" id="storeFooter">
   <b>Giirassol Flores</b><br>
   Olho d’água, Boa Hora – PI<br>
   Encomendas com 4 a 7 dias de antecedência.<br>
