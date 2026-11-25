@@ -935,7 +935,7 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
 
   <p class="notice">
     Flores e flores especiais não têm preço exibido.
-     Flores e flores especiais: 1 flor R$ 55 e cada flor adicional + R$ 25, sem limite de quantidade. Pelúcias e adicionais somam seus preços cadastrados.
+     Flores e flores especiais: 1 flor R$ 50 e cada flor adicional + R$ 25, sem limite de quantidade. Pelúcias e adicionais somam seus preços cadastrados.
   </p>
 
   <button class="btn" style="width:100%" onclick="checkout()">
@@ -1082,7 +1082,7 @@ function money(v) {
 function getCartPricing(){
   const entries=Object.keys(cart).map(id=>({p:products.find(x=>String(x.id)===String(id)),q:Number(cart[id])||0})).filter(x=>x.p&&x.p.available!==false);
   const flowerCount=entries.filter(x=>x.p.category==='Flores'||x.p.category==='Flores especiais').reduce((sum,x)=>sum+x.q,0);
-  const flowerTotal=flowerCount>0?55+(flowerCount-1)*25:0;
+  const flowerTotal=flowerCount>0?50+(flowerCount-1)*25:0;
   const categoryTotals={};
   ['Flores','Flores especiais','Buquês','Adicionais','Pelúcias','Vasinhos 🪴','Chaveiros 🗝️'].forEach(category=>{
     const selected=entries.filter(x=>x.p.category===category);
@@ -1213,7 +1213,7 @@ function openProductDetails(id){
   const hasPrice=p.price!==null&&p.price!==''&&p.price!==undefined;
   const priceHtml=p.promo_active&&p.promo_price!=null?'<span class="old-price">'+money(p.price)+'</span> <span class="sale-tag">PROMOÇÃO</span><br>'+money(p.promo_price):(hasPrice?money(p.price):'Valor a confirmar');
   const imageHtml=p.image?'<img class="product-dialog-image" src="'+escapeProductText(p.image)+'" alt="'+escapeProductText(p.name)+'">':'<div class="noimage product-dialog-image">Foto a adicionar</div>';
-  const note=(p.category==='Flores'||p.category==='Flores especiais')?'Valor calculado automaticamente: 1 flor R$ 55 e cada adicional + R$ 25.':'Consulte a disponibilidade pelo atendimento.';
+  const note=(p.category==='Flores'||p.category==='Flores especiais')?'Valor calculado automaticamente: 1 flor R$ 50 e cada adicional + R$ 25.':'Consulte a disponibilidade pelo atendimento.';
   const outOfStock=p.stock_quantity!==null&&p.stock_quantity!==undefined&&Number(p.stock_quantity)<=0;const availabilityHtml=p.available===false||outOfStock?'<div class="unavailable-label">Indisponível no momento<button class="waitlist-cta" type="button" data-waitlist-id="'+p.id+'" data-product-name="'+escapeProductText(p.name)+'">Avise-me quando voltar</button></div>':'<button class="product-dialog-add" type="button" onclick="add('+p.id+',null);closeProductDetails()">Adicionar ao carrinho</button>';
   const descriptionHtml=p.description?'<div class="product-dialog-description">'+escapeProductText(p.description).replace(/\n/g,'<br>')+'</div>':'';
   document.getElementById('productDialogContent').innerHTML=imageHtml+'<h2 class="product-dialog-name" id="productDialogName">'+escapeProductText(p.name)+'</h2><div class="product-dialog-category">'+escapeProductText(p.category)+'</div><div class="product-dialog-price">'+priceHtml+'</div>'+descriptionHtml+'<p class="product-dialog-note">'+note+' Encomendas com '+escapeProductText(settings.lead)+'.</p>'+availabilityHtml+'<button class="product-share product-dialog-share" type="button" onclick="shareProduct('+p.id+')">Compartilhar pelo WhatsApp</button>';
