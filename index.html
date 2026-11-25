@@ -1308,7 +1308,8 @@ header.brand-header{display:grid!important;grid-template-columns:auto minmax(0,1
   <span id="phoneText"></span>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.89.0">function setupHeroSlider(count){
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.89.0"></script>
+<script>function setupHeroSlider(count){
  const host=document.getElementById('heroInner');if(!host)return;
  let index=0;const slides=Array.from(host.querySelectorAll('[data-hero-slide]'));
  const prev=document.getElementById('heroSliderPrev'),next=document.getElementById('heroSliderNext');
@@ -1386,7 +1387,7 @@ function resolveStoreImage(value){
  const src=String(value||"").trim();
  if(!src)return "";
  if(/^(https?:|data:|blob:|\/\/)/i.test(src))return src;
- return new URL(src.replace(/^\.\//,"").replace(/^\//,""),window.location.origin+"/").href;
+ return new URL(src.replace(/^\.\//,"").replace(/^\//,""),document.baseURI).href;
 }
 const localImageFallbacks=new Map(initial.map(p=>[String(p.id),p.image||""]));
 let products = initial.map(p=>({...p,image:resolveStoreImage(p.image)}));
