@@ -878,7 +878,7 @@ async function loadOrders(){
  const canceledHtml=canceled.map(o=>"<div style='display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid var(--line)'><span><b>Pedido #"+esc(o.order_number)+"</b> · "+esc(o.customer_name)+" · "+new Date(o.created_at).toLocaleDateString("pt-BR")+"</span><button type='button' class='btn danger delete-canceled' data-order-id='"+esc(o.id)+"'>Excluir definitivamente</button></div>").join("");
  box.innerHTML="<div class='order-tools'><input class='wide' id='orderSearch' placeholder='Buscar por cliente, telefone, produto ou nº do pedido...'><select id='orderStatusFilter'><option value=''>Todos os status</option>"+orderStatuses.map(st=>"<option value='"+st[0]+"'>"+st[1]+"</option>").join("")+"</select><select id='orderPaymentFilter'><option value=''>Todos os pagamentos</option><option value='pendente'>Pendente</option><option value='parcial'>Parcial</option><option value='pago'>Pago</option></select><select id='orderSort'><option value='newest'>Mais recentes</option><option value='oldest'>Mais antigos</option><option value='delivery'>Entrega mais próxima</option></select></div><p class='muted' id='orderFilterCount'></p>"+(activeHtml||"<p class='muted'>Nenhum pedido pendente de atendimento. Os pedidos concluídos ficam no histórico arquivado.</p>")+
   "<details class='archived-orders' style='margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fffdf8'><summary style='cursor:pointer;font-weight:600;color:var(--green)'>Histórico arquivado ("+archived.length+") · abrir somente quando precisar</summary><div id='archivedOrdersList'>"+(archivedHtml||"<p class='muted'>Nenhum pedido arquivado ainda.</p>")+"</div></details>"+
-  "<details class='canceled-orders' style='margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fffdf8'><summary style='cursor:pointer;font-weight:600;color:#a34e43'>Pedidos cancelados ("+canceled.length+") · não entram nos indicadores</summary><div>"+(canceledHtml||"<p class='muted'>Nenhum pedido cancelado.</p>")+"</div></details>";
+  "<details class='canceled-orders' style='margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fffdf8'><summary style='cursor:pointer;font-weight:600;color:#a34e43'>Pedidos cancelados ("+canceled.length+") · não entram nos indicadores</summary><div style='display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0'><button type='button' class='btn danger delete-all-canceled' data-count='"+canceled.length+"' "+(canceled.length?"":"disabled")+">Excluir tudo</button><span class='muted canceled-delete-msg' role='status' aria-live='polite'></span></div><div>"+(canceledHtml||"<p class='muted'>Nenhum pedido cancelado.</p>")+"</div></details>";
  applyOrderFilters();
  return true;
 }
@@ -911,6 +911,19 @@ $("ordersAdminList").addEventListener("input",e=>{if(e.target.id==="orderSearch"
 $("orderQuickFilters")?.addEventListener("click",event=>{const button=event.target.closest("[data-quick-filter]");if(!button)return;activeOrderQuickFilter=button.dataset.quickFilter;applyOrderFilters();});
 
 $("ordersAdminList").addEventListener("click",async e=>{
+ const deleteAllBtn=e.target.closest(".delete-all-canceled");
+ if(deleteAllBtn){
+  const count=Number(deleteAllBtn.dataset.count)||0;
+  if(!count){alert("Não há pedidos cancelados para excluir.");return;}
+  if(!confirm("Excluir definitivamente TODOS os "+count+" pedidos cancelados? Esta ação não pode ser desfeita. Pedidos ativos e arquivados serão preservados."))return;
+  const msg=deleteAllBtn.parentElement.querySelector(".canceled-delete-msg");
+  deleteAllBtn.disabled=true;deleteAllBtn.textContent="Excluindo...";if(msg)msg.textContent="Excluindo pedidos cancelados...";
+  const {error}=await db.from("orders").delete().eq("status","cancelado");
+  if(error){alert("Não foi possível excluir os pedidos cancelados: "+error.message);deleteAllBtn.disabled=false;deleteAllBtn.textContent="Excluir tudo";if(msg)msg.textContent="Falha ao excluir. Tente novamente.";return;}
+  alert("Todos os pedidos cancelados foram excluídos.");
+  await loadOrders();
+  return;
+ }
  const deleteBtn=e.target.closest(".delete-canceled");
  if(deleteBtn){
   const orderId=deleteBtn.dataset.orderId;
