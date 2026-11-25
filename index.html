@@ -1242,7 +1242,26 @@ main.wrap{max-width:none!important;width:100%!important;padding:20px clamp(14px,
   <span id="phoneText"></span>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.89.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.89.0">function setupHeroSlider(count){
+ const host=document.getElementById('heroInner');if(!host)return;
+ let index=0;const slides=Array.from(host.querySelectorAll('[data-hero-slide]'));
+ const prev=document.getElementById('heroSliderPrev'),next=document.getElementById('heroSliderNext');
+ host.classList.toggle('has-hero-slides',slides.length>1);
+ const show=n=>{if(!slides.length)return;index=(n+slides.length)%slides.length;slides.forEach((img,i)=>img.classList.toggle('is-active',i===index));};
+ if(prev)prev.onclick=()=>show(index-1);if(next)next.onclick=()=>show(index+1);
+ if(!host.dataset.heroSwipeBound){host.dataset.heroSwipeBound='1';let start=0;host.addEventListener('touchstart',e=>{start=e.changedTouches[0].clientX},{passive:true});host.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-start;if(Math.abs(d)>40)show(index+(d<0?1:-1));},{passive:true});}
+}
+
+function setupHeroSlider(count){
+ const host=document.getElementById('heroInner');if(!host)return;
+ let index=0;const slides=Array.from(host.querySelectorAll('[data-hero-slide]'));
+ const prev=document.getElementById('heroSliderPrev'),next=document.getElementById('heroSliderNext');
+ host.classList.toggle('has-hero-slides',slides.length>1);
+ const show=n=>{if(!slides.length)return;index=(n+slides.length)%slides.length;slides.forEach((img,i)=>img.classList.toggle('is-active',i===index));};
+ if(prev)prev.onclick=()=>show(index-1);if(next)next.onclick=()=>show(index+1);
+ if(!host.dataset.heroSwipeBound){host.dataset.heroSwipeBound='1';let start=0;host.addEventListener('touchstart',e=>{start=e.changedTouches[0].clientX},{passive:true});host.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-start;if(Math.abs(d)>40)show(index+(d<0?1:-1));},{passive:true});}
+}
+</script>
 <script>
 const SUPABASE_URL="https://plwtpqjdloziqgshyisn.supabase.co";
 const SUPABASE_KEY="sb_publishable_7fL4YZHParuDFtxctX1bcA_aOkEljcf";
@@ -1839,25 +1858,7 @@ loadCustomerReviews();
 loadRemoteCatalog().then(()=>{const match=window.location.hash.match(/^#produto=([^&]+)/);if(match)openProductDetails(decodeURIComponent(match[1]));});
 </script>
 
-function setupHeroSlider(count){
- const host=document.getElementById('heroInner');if(!host)return;
- let index=0;const slides=Array.from(host.querySelectorAll('[data-hero-slide]'));
- const prev=document.getElementById('heroSliderPrev'),next=document.getElementById('heroSliderNext');
- host.classList.toggle('has-hero-slides',slides.length>1);
- const show=n=>{if(!slides.length)return;index=(n+slides.length)%slides.length;slides.forEach((img,i)=>img.classList.toggle('is-active',i===index));};
- if(prev)prev.onclick=()=>show(index-1);if(next)next.onclick=()=>show(index+1);
- if(!host.dataset.heroSwipeBound){host.dataset.heroSwipeBound='1';let start=0;host.addEventListener('touchstart',e=>{start=e.changedTouches[0].clientX},{passive:true});host.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-start;if(Math.abs(d)>40)show(index+(d<0?1:-1));},{passive:true});}
-}
 
-function setupHeroSlider(count){
- const host=document.getElementById('heroInner');if(!host)return;
- let index=0;const slides=Array.from(host.querySelectorAll('[data-hero-slide]'));
- const prev=document.getElementById('heroSliderPrev'),next=document.getElementById('heroSliderNext');
- host.classList.toggle('has-hero-slides',slides.length>1);
- const show=n=>{if(!slides.length)return;index=(n+slides.length)%slides.length;slides.forEach((img,i)=>img.classList.toggle('is-active',i===index));};
- if(prev)prev.onclick=()=>show(index-1);if(next)next.onclick=()=>show(index+1);
- if(!host.dataset.heroSwipeBound){host.dataset.heroSwipeBound='1';let start=0;host.addEventListener('touchstart',e=>{start=e.changedTouches[0].clientX},{passive:true});host.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-start;if(Math.abs(d)>40)show(index+(d<0?1:-1));},{passive:true});}
-}
 
 
 </body>
