@@ -955,6 +955,20 @@ main.wrap{width:min(100% - 36px,1120px)!important;max-width:1120px!important;mar
 .product-detail-total strong{color:var(--green);font:700 21px Georgia,serif}
 .catalog-filter-select-all{padding-bottom:10px;margin-bottom:2px;border-bottom:1px solid var(--line);font-weight:700}
 
+
+/* Navigation follows the reference: compact top header, no fixed bottom bar */
+.mobile-bottom-nav{display:none!important}
+body{padding-bottom:0!important}
+.cartbox{bottom:20px!important}
+.whatsapp-float{bottom:20px!important}
+@media(max-width:700px){
+ body{padding-bottom:calc(12px + env(safe-area-inset-bottom))!important}
+ .cartbox{bottom:calc(14px + env(safe-area-inset-bottom))!important;right:14px!important}
+ .whatsapp-float{bottom:calc(14px + env(safe-area-inset-bottom))!important;left:14px!important}
+ .footer{padding-bottom:28px!important}
+ .panel{bottom:calc(82px + env(safe-area-inset-bottom))!important}
+}
+
 </style>
 </head>
 
@@ -976,7 +990,10 @@ main.wrap{width:min(100% - 36px,1120px)!important;max-width:1120px!important;mar
 <div class="mobile-menu-shade" id="mobileMenuShade" onclick="toggleMobileMenu(false)"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-label="Menu da loja">
   <div class="drawer-head"><b>Menu</b><button type="button" onclick="toggleMobileMenu(false)" aria-label="Fechar menu">✕</button></div>
-  <button type="button" onclick="setCategory('Todos');toggleMobileMenu(false)">Todos os produtos</button>
+  <button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'});toggleMobileMenu(false)">Início</button>
+  <button type="button" onclick="toggleCart();toggleMobileMenu(false)">Carrinho / Pedidos</button>
+  <button type="button" onclick="contactStore();toggleMobileMenu(false)">Falar com a loja</button>
+  <button type="button" onclick="setCategory('Todos');toggleMobileMenu(false);scrollToCatalog()">Todos os produtos</button>
   <button type="button" data-drawer-category="Flores" onclick="setCategory('Flores');toggleMobileMenu(false)">Flores</button>
   <button type="button" data-drawer-category="Flores especiais" onclick="setCategory('Flores especiais');toggleMobileMenu(false)">Flores especiais</button>
   <button type="button" data-drawer-category="Buquês" onclick="setCategory('Buquês');toggleMobileMenu(false)">Buquês</button>
