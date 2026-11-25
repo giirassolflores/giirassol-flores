@@ -906,6 +906,50 @@ main.wrap{width:min(100% - 36px,1120px)!important;max-width:1120px!important;mar
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.home-intro-cta{transition:none}}
 
+
+/* Product detail behaves like a dedicated responsive product page */
+.product-dialog.open{display:block!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:var(--cream)!important;padding:0!important}
+.product-dialog-card{position:relative!important;width:min(1120px,100%)!important;max-height:none!important;min-height:100dvh!important;overflow:visible!important;border:0!important;border-radius:0!important;padding:clamp(18px,4vw,48px)!important;background:var(--cream)!important;box-shadow:none!important}
+.product-dialog-close{position:fixed!important;right:clamp(14px,3vw,38px)!important;top:clamp(14px,3vw,38px)!important;z-index:10!important;border:1px solid var(--line)!important;background:var(--paper)!important;color:var(--green)!important}
+.product-detail-back{display:inline-flex;align-items:center;gap:8px;margin:0 0 24px;padding:10px 0;border:0;background:transparent;color:var(--green);font:16px Georgia,serif;cursor:pointer}
+.product-detail-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,5vw,70px);align-items:start}
+.product-detail-gallery{min-width:0}
+.product-dialog-image{display:block;width:100%!important;height:auto!important;max-height:70dvh!important;aspect-ratio:1/1!important;object-fit:contain!important;border-radius:0!important;background:var(--paper)!important}
+.product-detail-thumbnails{display:flex;gap:10px;margin-top:12px;overflow-x:auto}
+.product-detail-thumbnail{flex:0 0 82px;width:82px;height:82px;padding:0;border:2px solid transparent;background:var(--paper);cursor:pointer}
+.product-detail-thumbnail.active{border-color:var(--green)}
+.product-detail-thumbnail img{width:100%;height:100%;object-fit:contain}
+.product-detail-copy{min-width:0;padding-top:10px}
+.product-detail-kicker{color:var(--green);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.product-dialog-name{margin:12px 48px 10px 0!important;font:500 clamp(27px,3vw,40px)/1.2 Georgia,serif!important;color:var(--ink)!important}
+.product-dialog-price{margin:18px 0!important;color:var(--green)!important;font:500 22px Georgia,serif!important}
+.product-detail-description,.product-detail-information{margin:24px 0;padding:18px 0;border-top:1px solid var(--line)}
+.product-detail-description h3,.product-detail-information h3{margin:0 0 12px;color:var(--ink);font:700 20px Georgia,serif}
+.product-dialog-description{font:15px/1.75 Georgia,serif!important;color:var(--muted)!important;white-space:normal}
+.product-detail-information p{margin:8px 0;color:var(--muted);font:14px/1.6 Georgia,serif}
+.product-detail-quantity{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:24px 0;color:var(--ink);font:16px Georgia,serif}
+.product-detail-quantity-control{display:inline-flex;align-items:center;gap:16px;padding:6px 10px;border:1px solid var(--line);border-radius:28px;background:var(--paper)}
+.product-detail-quantity-control button{width:36px;height:36px;border:0;border-radius:50%;background:var(--cream);color:var(--green);font-size:24px;cursor:pointer}
+.product-detail-quantity-control output{min-width:22px;text-align:center;color:var(--ink);font:16px Arial,sans-serif}
+.product-dialog-add{width:100%!important;min-height:54px!important;margin:8px 0;border:0!important;border-radius:10px!important;background:var(--green)!important;color:var(--paper)!important;font:700 16px Georgia,serif!important}
+.product-dialog-share{margin-top:10px!important;min-height:48px!important}
+@media(max-width:1050px) and (min-width:701px){.product-detail-layout{gap:28px}}
+@media(max-width:700px){
+ .product-dialog-card{padding:16px 16px calc(30px + env(safe-area-inset-bottom))!important}
+ .product-detail-back{margin-bottom:18px;font-size:15px}
+ .product-detail-layout{grid-template-columns:1fr;gap:20px}
+ .product-dialog-image{max-height:52dvh!important}
+ .product-detail-thumbnails{gap:8px}.product-detail-thumbnail{flex-basis:66px;width:66px;height:66px}
+ .product-detail-copy{padding-top:0}
+ .product-dialog-name{font-size:29px!important;margin-right:40px!important}
+ .product-dialog-price{font-size:20px!important}
+ .product-detail-description,.product-detail-information{margin:18px 0;padding:16px 0}
+ .product-dialog-description{font-size:15px!important}
+ .product-detail-quantity{margin:20px 0}.product-detail-quantity-control{gap:12px}
+ .product-detail-quantity-control button{width:34px;height:34px}.product-dialog-add{min-height:52px!important}
+ .product-dialog-close{position:sticky!important;float:right!important;top:12px!important;right:0!important;margin-bottom:-44px!important}
+}
+
 </style>
 </head>
 
@@ -1350,15 +1394,25 @@ function renderProducts() {
 function escapeProductText(value){return String(value??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/'/g,'&#39;');}
 function openProductDetails(id){
   const p=products.find(x=>String(x.id)===String(id));if(!p)return;
+  productDetailQuantity=1;window.gfProductDetailId=String(id);
   const hasPrice=p.price!==null&&p.price!==''&&p.price!==undefined;
   const priceHtml=p.promo_active&&p.promo_price!=null?'<span class="old-price">'+money(p.price)+'</span> <span class="sale-tag">PROMOÇÃO</span><br>'+money(p.promo_price):(hasPrice?money(p.price):'Valor a confirmar');
-  const imageHtml=p.image?'<img class="product-dialog-image" src="'+escapeProductText(p.image)+'" alt="'+escapeProductText(p.name)+'">':'<div class="noimage product-dialog-image">Foto a adicionar</div>';
+  const gallery=Array.isArray(p.images)?p.images.filter(Boolean):[];
+  if(p.image&&!gallery.includes(p.image))gallery.unshift(p.image);
+  const mainImage=gallery[0]||p.image;
+  const imageHtml=mainImage?'<img class="product-dialog-image" id="productDetailMainImage" src="'+escapeProductText(mainImage)+'" alt="'+escapeProductText(p.name)+'">':'<div class="noimage product-dialog-image">Foto a adicionar</div>';
+  const thumbnails=gallery.length>1?'<div class="product-detail-thumbnails">'+gallery.map((src,i)=>'<button type="button" class="product-detail-thumbnail '+(i===0?'active':'')+'" data-detail-src="'+escapeProductText(src)+'" aria-label="Ver foto '+(i+1)+'"><img src="'+escapeProductText(src)+'" alt=""></button>').join('')+'</div>':'';
   const note=(p.category==='Flores especiais')?'Valor calculado automaticamente: 1 flor R$ 50, cada adicional + R$ 25 e acréscimo de R$ 5 por flor especial.':(p.category==='Flores'?'Valor calculado automaticamente: 1 flor R$ 50 e cada adicional + R$ 25.':'Consulte a disponibilidade pelo atendimento.');
-  const outOfStock=p.stock_quantity!==null&&p.stock_quantity!==undefined&&Number(p.stock_quantity)<=0;const availabilityHtml=p.available===false||outOfStock?'<div class="unavailable-label">Indisponível no momento<button class="waitlist-cta" type="button" data-waitlist-id="'+p.id+'" data-product-name="'+escapeProductText(p.name)+'">Avise-me quando voltar</button></div>':'<button class="product-dialog-add" type="button" onclick="add('+p.id+',null);closeProductDetails()">Adicionar ao carrinho</button>';
-  const descriptionHtml=p.description?'<div class="product-dialog-description">'+escapeProductText(p.description).replace(/\n/g,'<br>')+'</div>':'';
-  document.getElementById('productDialogContent').innerHTML=imageHtml+'<h2 class="product-dialog-name" id="productDialogName">'+escapeProductText(p.name)+'</h2><div class="product-dialog-category">'+escapeProductText(p.category)+'</div><div class="product-dialog-price">'+priceHtml+'</div>'+descriptionHtml+'<p class="product-dialog-note">'+note+' Encomendas com '+escapeProductText(settings.lead)+'.</p>'+availabilityHtml+'<button class="product-share product-dialog-share" type="button" onclick="shareProduct('+p.id+')">Compartilhar pelo WhatsApp</button>';
-  const dialog=document.getElementById('productDialog');dialog.classList.add('open');dialog.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  const outOfStock=isProductUnavailable(p);
+  const quantityHtml=outOfStock?'<div class="unavailable-label">Indisponível no momento<button class="waitlist-cta" type="button" data-waitlist-id="'+p.id+'" data-product-name="'+escapeProductText(p.name)+'">Avise-me quando voltar</button></div>':'<div class="product-detail-quantity"><span>Quantidade</span><div class="product-detail-quantity-control"><button type="button" onclick="changeProductDetailQuantity(-1)" aria-label="Diminuir quantidade">−</button><output id="productDetailQuantity">1</output><button type="button" onclick="changeProductDetailQuantity(1)" aria-label="Aumentar quantidade">+</button></div></div><button class="product-dialog-add" type="button" onclick="addProductDetailToCart('+p.id+')">Adicionar ao carrinho</button>';
+  const descriptionHtml=p.description?'<section class="product-detail-description"><h3>Descrição do produto</h3><div class="product-dialog-description">'+escapeProductText(p.description).replace(/\n/g,'<br>')+'</div></section>':'';
+  document.getElementById('productDialogContent').innerHTML='<button type="button" class="product-detail-back" onclick="closeProductDetails()">← Voltar ao catálogo</button><div class="product-detail-layout"><div class="product-detail-gallery">'+imageHtml+thumbnails+'</div><div class="product-detail-copy"><span class="product-detail-kicker">'+escapeProductText(p.category)+'</span><h2 class="product-dialog-name" id="productDialogName">'+escapeProductText(p.name)+'</h2><div class="product-dialog-price">'+priceHtml+'</div>'+descriptionHtml+'<section class="product-detail-information"><h3>Informações do produto</h3><p>'+note+'</p><p>Prazo de encomenda: '+escapeProductText(settings.lead)+'.</p></section>'+quantityHtml+'<button class="product-share product-dialog-share" type="button" onclick="shareProduct('+p.id+')">Compartilhar pelo WhatsApp</button></div></div>';
+  document.querySelectorAll('[data-detail-src]').forEach(button=>button.addEventListener('click',()=>setProductDetailImage(button.dataset.detailSrc,button)));
+  const dialog=document.getElementById('productDialog');dialog.classList.add('open');dialog.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';dialog.scrollTop=0;
 }
+function setProductDetailImage(src,button){const image=document.getElementById('productDetailMainImage');if(image)image.src=src;document.querySelectorAll('.product-detail-thumbnail').forEach(x=>x.classList.toggle('active',x===button));}
+function changeProductDetailQuantity(delta){const p=products.find(x=>String(x.id)===String(window.gfProductDetailId));productDetailQuantity=Math.max(1,productDetailQuantity+delta);if(p&&p.stock_quantity!==null&&p.stock_quantity!==undefined)productDetailQuantity=Math.min(productDetailQuantity,Math.max(1,Number(p.stock_quantity)||1));const out=document.getElementById('productDetailQuantity');if(out)out.textContent=String(productDetailQuantity);}
+function addProductDetailToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const stock=p.stock_quantity!==null&&p.stock_quantity!==undefined?Number(p.stock_quantity):Infinity;if(productDetailQuantity+Number(cart[id]||0)>stock){alert('Não há unidades suficientes disponíveis desse produto no estoque.');return;}for(let i=0;i<productDetailQuantity;i++)add(id,null);closeProductDetails();}
 function closeProductDetails(){const dialog=document.getElementById('productDialog');if(!dialog)return;dialog.classList.remove('open');dialog.setAttribute('aria-hidden','true');document.body.style.overflow='';}
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeProductDetails()});
 
