@@ -1302,8 +1302,8 @@ function renderTabs() {
   const tabs=document.getElementById('tabs');
   if(!tabs)return;
   const cats=getCatalogCategories();
-  const heading=document.querySelector('#catalogTitle h1');if(heading)heading.textContent=favoritesOnly?'Meus favoritos':(active==='Todos'?'Todos os produtos':active);
   if(active!=='Todos'&&!cats.includes(active))active='Todos';
+  const heading=document.querySelector('#catalogTitle h1');if(heading)heading.textContent=favoritesOnly?'Meus favoritos':(active==='Todos'?'Todos os produtos':active);
   tabs.innerHTML = cats.map(c =>
     `<button type="button" class="tab ${active===c?'active':''}" data-category="${escapeProductText(c)}">${categoryIcon(c)}<span>${escapeProductText(c)}</span></button>`
   ).join('');
