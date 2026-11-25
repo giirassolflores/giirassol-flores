@@ -1403,7 +1403,7 @@ function openProductDetails(id){
   const p=products.find(x=>String(x.id)===String(id));if(!p)return;
   productDetailQuantity=1;window.gfProductDetailId=String(id);
   const hasPrice=p.price!==null&&p.price!==''&&p.price!==undefined;
-  const priceHtml=p.promo_active&&p.promo_price!=null?'<span class="old-price">'+money(p.price)+'</span> <span class="sale-tag">PROMOÇÃO</span><br>'+money(p.promo_price):(hasPrice?money(p.price):'Valor a confirmar');
+  const priceHtml=p.promo_active&&p.promo_price!=null?'<span class="old-price">'+money(p.price)+'</span> <span class="sale-tag">PROMOÇÃO</span><br>'+money(p.promo_price):(hasPrice?money(p.price):((p.category==='Flores'||p.category==='Flores especiais')?'Valor calculado conforme quantidade':'Valor a confirmar'));
   const gallery=Array.isArray(p.images)?p.images.filter(Boolean):[];
   if(p.image&&!gallery.includes(p.image))gallery.unshift(p.image);
   const mainImage=gallery[0]||p.image;
