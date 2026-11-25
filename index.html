@@ -1955,6 +1955,7 @@ renderCart();
 renderFooter();
 persist();
 loadCustomerReviews();
+applyPreviewStoreFallback();
 loadRemoteCatalog().then(()=>{const match=window.location.hash.match(/^#produto=([^&]+)/);if(match)openProductDetails(decodeURIComponent(match[1]));});
 </script>
 
