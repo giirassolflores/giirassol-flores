@@ -1317,6 +1317,41 @@ main.wrap{
   .product .add{min-height:46px!important;font-size:14px!important}
 }
 
+
+/* Contrast fix: use the current admin palette for actionable controls */
+nav.tabs .tab{
+  background:var(--details,var(--green))!important;
+  color:#fff!important;
+  border:2px solid var(--details,var(--green))!important;
+}
+nav.tabs .tab.active{
+  background:var(--gold,var(--yellow))!important;
+  color:var(--details,var(--green))!important;
+  border:2px solid var(--gold,var(--yellow))!important;
+  box-shadow:0 2px 0 #00000012!important;
+}
+nav.tabs .tab:focus-visible{
+  outline:3px solid var(--ink)!important;
+  outline-offset:3px!important;
+}
+.product .add{
+  background:var(--details,var(--green))!important;
+  color:#fff!important;
+  border:2px solid var(--details,var(--green))!important;
+  font-weight:700!important;
+}
+.product .add:hover{
+  filter:brightness(1.08)!important;
+  background:var(--details,var(--green))!important;
+  color:#fff!important;
+}
+.product .add:focus-visible,
+.catalog-filter-apply:focus-visible,
+.catalog-filter-clear:focus-visible{
+  outline:3px solid var(--gold,var(--yellow))!important;
+  outline-offset:3px!important;
+}
+
 </style>
 </head>
 
