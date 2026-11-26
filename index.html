@@ -805,21 +805,10 @@ main.wrap{width:min(100% - 36px,1120px);max-width:1120px;margin:0 auto;padding:0
  .hero-frame-image{width:100vw!important;aspect-ratio:1080/90!important;object-fit:cover!important}
 }
 
-/* Larger floating edge ornaments around the hero; keep them anchored to the corners */
-.hero-inner>img.hero-decor{
-  width:clamp(150px,22vw,270px)!important;
-  height:clamp(160px,24vw,290px)!important;
-  object-fit:contain!important;
-}
-.hero-decor-lt{left:0!important;top:0!important}
-.hero-decor-lb{left:0!important;bottom:0!important}
-.hero-decor-rt{right:0!important;top:0!important}
-.hero-decor-rb{right:0!important;bottom:0!important}
+/* Larger transparent animated GIF garlands above and below the hero banner */
+.hero-frame-image{aspect-ratio:1080/150!important;object-fit:cover!important}
 @media(max-width:700px){
-  .hero-inner>img.hero-decor{
-    width:clamp(128px,30vw,200px)!important;
-    height:clamp(140px,32vw,220px)!important;
-  }
+ .hero-frame-image{width:100vw!important;aspect-ratio:1080/150!important;object-fit:cover!important}
 }
 </style>
 </head>
